@@ -4,7 +4,7 @@ The goal of this script is to automate the management of windows server backups 
 
 This script is responsible for creating a new folder, using the current date, and copying the contents of the most recent backup to it. This allows multiple backups to exist on the same network drive. Additionally the new backup and all of its contents will be set to read-only and compressed (using tar gz compression) to provide an extra layer of security. To prevent storage exhaustion the script also checks how many backups exist, if it exceeds the predefined threshold, the oldest backup will be deleted.
 
-The script is run using windows task scheduler.
+The script is ran using windows task scheduler.
 
 The script performs 5 tasks:
 1. It gets the path to the backups directory, then gets a list of all of the files, the compressed backups, within. The list is formated and organized into oldest to newest order. Note that the variable backups_dir will need to be changed to match the path to the correct directory. I plan on changing how this works in the future.
