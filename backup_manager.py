@@ -7,14 +7,13 @@ The purpose of this script is to automate the management of windows backups on a
 get a list of the backups, create a copy of the newest one, set it's contents to read-only, then delete the oldest
 backup if the maximum threshhold has been exceeded. Refer to the read me for more details.
 
-TODO: Compress the backups
-    tar -cf uncompressed compressed.gzip #Compress dir
-    tar -xvf compressed.gzip             #Uncompress dir
+TODO: figure oout how to incorporate multithreading to speed up compression
 '''
 
 max_backups = 4
 backups_dir = "C:\\Users\\cftbr\\Desktop\\test_folder\\"
 backup_folder_name = "WindowsImageBackup"
+compress_archive = True
 
 #Create and remove a temp file to update the backup's [parent folder] last modified time
 try:
@@ -40,19 +39,35 @@ try:
 except:
     print("ERROR: Unable to get list of backups!")
 
-#Create the archived backup
-try:
-    #Get the date and format it MM-DD-YYYY
-    current_date = check_output("date /T", shell=True).decode()
-    new_backup_name = backups_dir + str(current_date[4:current_date.find("\n") -2 ]).replace("/","-")
-    
-    #Create and compress archived copy, set it to read-only
-    print("Creating backup...", end="")
-    os.system("tar -czvf " + new_backup_name + ".tar.gz " + backups_dir + backup_list[-1])
-    os.system("attrib /S /D +R " + new_backup_name + ".tar.gz")
-    print("...COMPLETE")
-except:
-    print("ERROR: Unable to create backup!")
+#Get the date and format it MM-DD-YYYY
+current_date = check_output("date /T", shell=True).decode()
+new_backup_name = backups_dir + str(current_date[4:current_date.find("\n") -2 ]).replace("/","-")
+
+#Create and compress archived copy, set it to read-only
+if compress_archive:
+    try:      
+        print("Creating backup...", end="")
+        os.system("tar -czvf " + new_backup_name + ".tar.gz " + backups_dir + backup_list[-1])
+        os.system("attrib /S /D +R " + new_backup_name + ".tar.gz")
+        print("...COMPLETE")
+    except:
+        print("ERROR: Unable to create backup!")
+        
+#Create an uncompredded backup 
+else:
+    try:
+        print("Creating backup", end='')
+        os.system("mkdir " + new_backup_name)
+        
+        os.system("xcopy /E /I /H /V /K /Y " + backups_dir + '"' + backup_list[-1] + '" ' + new_backup_name)
+        print("...COMPLETE")
+        
+        print("Setting all sub-directories and files to read-only", end='')
+        os.system("attrib /S /D +R " + backups_dir + backup_list[-1] + "\\*") 
+        print("...COMPLETE")
+    except:
+        print("ERROR: Unable to create backup!")
+        
  
 
 #Update the backups list to include the new archived backup (old to new)
