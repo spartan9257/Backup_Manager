@@ -13,12 +13,12 @@ TODO: Compress the backups
 
 max_backups = 4
 backups_dir = "C:\\Users\\cftbr\\Desktop\\test_folder\\"
-backup_new_backup_name = "WindowsImageBackup"
+backup_folder_name = "WindowsImageBackup"
 
 #Create and remove a temp file to update the original backup's parent folder last modified time
 try:
-    tmp_file = backups_dir + backup_new_backup_name + "\\tmp.txt"
-    print("Updating " + backup_new_backup_name + "'s last modified time", end='')
+    tmp_file = backups_dir + backup_folder_name + "\\tmp.txt"
+    print("Updating " + backup_folder_name + "'s last modified time", end='')
     file = open(tmp_file, "x")
     file.close()
     os.system("del " + tmp_file)
@@ -45,12 +45,13 @@ try:
     current_date = check_output("date /T", shell=True).decode()
     new_backup_name = backups_dir + str(current_date[4:current_date.find("\n") -2 ]).replace("/","-")
     print("Creating new backup folder", end='')
-    os.system("mkdir " + new_backup_name)
+    #os.system("mkdir " + new_backup_name)
     print("...COMPLETE")
 except:
     print("ERROR: Unable to create new backup folder!")
 
 #Create the new backup copy and set it to ready only
+'''
 try:
     print("Creating backup", end='')
     os.system("xcopy /E /I /H /V /K /Y " + backups_dir + '"' + backup_list[-1] + '" ' + new_backup_name)
@@ -61,17 +62,18 @@ try:
     print("...COMPLETE")
 except:
     print("ERROR: Unable to create backup!")
+'''
  
 #Create a compressed copy of the new backup 
 try:
     print("Compressing backup...", end="")
-    os.system("tar -czvf " + new_backup_name + ".tar.gz " + new_backup_name)
+    os.system("tar -czvf " + new_backup_name + ".tar.gz " + backups_dir + backup_list[-1])
     print("...COMPLETE")
-    
+    '''
     print("Removing uncompressed backup...", end="")
     os.system("rmdir /S /Q " + new_backup_name)
     print("...COMPLETE")
-    
+    '''
     print("Setting compressed backup to read-only", end='')
     os.system("attrib /S /D +R " + new_backup_name + ".tar.gz")
     print("...COMPLETE")
